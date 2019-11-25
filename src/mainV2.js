@@ -1,0 +1,1 @@
+$('.test').addClass('red blue')
