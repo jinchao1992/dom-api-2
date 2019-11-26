@@ -1,1 +1,2 @@
-$('.test').addClass('red blue')
+const $test = $('.test')
+$test.find('.child')
