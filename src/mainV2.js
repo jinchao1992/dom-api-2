@@ -1,7 +1,9 @@
 const $test = $('.test')
-const $child = $test.find('.child')
-// $test.find('.child').addClass('red').addClass('blue').end().addClass('green')
-const print = $child.each((item) => {
-  item.classList.add('red')
-}).print()
-$child.parent()
+// $test.find('.child').addClass('red').end().addClass('blue')
+// console.log($test.parent().print())
+// $test.children()
+// console.log($test.index())
+
+// const $createDiv = $('<div>我是新创建的</div>')
+
+$test.index()
