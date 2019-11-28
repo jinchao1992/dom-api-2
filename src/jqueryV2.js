@@ -1,4 +1,7 @@
-import { strToArray, isArray } from './utils'
+import {
+  strToArray,
+  isArray
+} from './utils'
 window.$ = window.jQuery = function (selectorOrArrayOrTemplate) {
   let elements
   if (typeof selectorOrArrayOrTemplate === 'string') {
@@ -18,26 +21,47 @@ window.$ = window.jQuery = function (selectorOrArrayOrTemplate) {
     container.innerHTML = str.trim()
     return container.content.firstChild
   }
-  // 此句话的作用在于创建一个对象把它的__proto__ 指向了括号里的东西
-  const api = Object.create(jQuery.prototype)
+  const api = Object.create(jQuery.prototype) // 作用在于创建一个对象，把对象的__proto__ 指向了括号里的内容
   Object.assign(api, {
     elements,
-    oldApi: selectorOrArrayOrTemplate.oldApi
+    oldApi: selectorOrArrayOrTemplate
   })
   return api
 }
 
 jQuery.prototype = {
   constructor: jQuery,
-  // jQuery: true,
+  jquery: true,
   get(index) {
     return this.elements[index]
+  },
+  appendTo(node) {
+    if (node instanceof Element) {
+      this.each(el => {
+        node.appendChild(el)
+      })
+    } else if (node.jquery) {
+      this.each(el => {
+        return node.get(0).appendChild(el)
+      })
+    }
+  },
+  append(children) {
+    if (children instanceof Element) {
+      this.get(0).appendChild(children);
+    } else if (children instanceof HTMLCollection) {
+      for (let i = 0; i < children.length; i++) {
+        this.get(0).appendChild(children[i]);
+      }
+    } else if (children.jquery) {
+      children.each(node => this.get(0).appendChild(node));
+    }
   },
   addClass(className) {
     const elements = this.elements
     className = strToArray(className, ' ')
     for (let i = 0; i < elements.length; i++) {
-      this.elements[i].classList.add(...className)
+      elements[i].classList.add(...className)
     }
     return this
   },
@@ -89,16 +113,45 @@ jQuery.prototype = {
     })
     return jQuery(array)
   },
-  index(node) {
-    const items = this.parent().print()
-    for (let i = 0; i < items.length; i++) {
-      const children = items[i].children
-      for (let j = 0; j < children.length; j++) {
-        if (children[j] === node) {
+  index() {
+    const childrens = this.parent().children().print()
+    const elements = this.elements
+    for (let i = 0; i < childrens.length; i++) {
+      for (let j = 0; j < elements.length; j++) {
+        if (childrens[i] === elements[j]) {
           return i
           break
         }
       }
     }
+  },
+  next() {
+    let array = []
+    this.each(item => {
+      let x = item.nextSibling
+      while (x && x.nodeType === 3) {
+        x = x.nextSibling
+      }
+      if (x && array.indexOf(x) === -1) {
+        array.push(x)
+      }
+    })
+    return jQuery(array)
+  },
+  prev() {
+    let array = []
+    this.each(item => {
+      if (item.previousElementSibling && array.indexOf(item.previousElementSibling) === -1) {
+        array.push(item.previousElementSibling)
+      }
+    })
+    return jQuery(array)
+  },
+  siblings() {
+    const childrens = this.parent().children().print()
+    const array = childrens.filter((item, index) => {
+      return index !== this.index()
+    })
+    return jQuery(array)
   }
 }
