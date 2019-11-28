@@ -6,4 +6,5 @@ const $test = $('.test')
 
 // const $createDiv = $('<div>我是新创建的</div>')
 
-$test.index()
+// $test.index()
+console.log($test.get(0))
